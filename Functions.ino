@@ -339,7 +339,7 @@ void DumpMsg() {
 //-------------------------------------------------- Update local timestamp
 void getTime() {
   
-char locbuf[10] ;
+char locbuf[11] ;
 
     loctimestamp  = loctimestamp  + ( ( millis() - lastupdate ) / 1000 ) ;  // Timestamp adjust (from connection)
     lastupdate    = millis() ; 
