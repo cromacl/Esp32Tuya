@@ -12,10 +12,10 @@
 
 */
 
-const char* thisPgm  = "Tuya/EspTuya"  ;
+const char* thisPgm  = "Tuya/Esp32Tuya"  ;
 
 
-//#define _DEBUG      1
+#define _DEBUG      1
 
 #ifdef _DEBUG
  #define DEBUG_PRINT(x)       Serial.print (x)
@@ -38,14 +38,14 @@ const char* thisPgm  = "Tuya/EspTuya"  ;
 #include <AES.h>
 #include <GCM.h>
 #include <SHA256.h>
-
-
 #include <ArduinoJson.h>
+#include <TimeLib.h>  // Include the Time library for time conversion
+#include <NTPClient.h>
 JsonDocument doc;
 
 //      #include your WIFI library....  
 
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include "time.h"
 
 // Replace with your network credentials
@@ -59,7 +59,7 @@ WiFiUDP           Udp ;
 WiFiClient    _client ;
 unsigned int   UDPPort   = 6667 ;
 unsigned int   DevPort = 6668 ;
-
+NTPClient timeClient(Udp, "pool.ntp.org", 0, 60000);
 #define KEY_LENGTH 16
 #define SHA256HMAC_SIZE 32 
 #define TEXT_MAX_SIZE   500 
@@ -191,15 +191,19 @@ void setup() {
     //------------------------- Access WIFI and provide Unix Timestamp
         WiFi.mode(WIFI_STA);
         WiFi.begin(ssid, password);
-        Serial.print("Connecting to WiFi ..");
-        while (WiFi.status() != WL_CONNECTED
-          .............
+        Serial.println("Connecting to WiFi ..");
+        while (WiFi.status() != WL_CONNECTED) {
+          delay(1000);
+          Serial.println("Connecting to WiFi...");
+       }
+    
 
               
 //********* Customize hereafter : setup loctimestamp with Unix time according to your environment
 
-          loctimestamp  = epochTime ....;  
+          loctimestamp = timeClient.getEpochTime();
           lastupdate    = millis() ;        
+          Serial.print("Time epoch");  Serial.println(loctimestamp);
     //------------------------- 
 
 
@@ -256,4 +260,3 @@ void setDevice( sDev &fromDev) {
     memcpy( dev.ip,  fromDev.ip,  4           );        
     dev.vers      =  fromDev.vers ;
 }
-
